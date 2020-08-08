@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+  picam:
+    container_name: picam
+    image: sbonkosky/picam:nodejs
+    ports:
+      - "8080:8080"
+    devices:
+      - /dev/vchiq
+      - /dev/vcsm
+    volumes:
+      - /opt/vc:/opt/vc
+    environment:
+      - LD_LIBRARY_PATH=/opt/vc/lib
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:linux-arm
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+  rpi-monitor:
+    container_name: rpi-monitor
+    image: michaelmiklis/rpi-monitor:latest
+    ports:
+        - "8888:8888"
+    devices:
+        - /dev/vcsm
+    volumes:
+        - /opt/vc:/opt/vc
+        - /boot:/boot
+        - /sys:/dockerhost/sys:ro
+        - /etc:/dockerhost/etc:ro
+        - /proc:/dockerhost/proc:ro
+        - /usr/lib:/dockerhost/usr/lib:ro
+
+volumes:
+    portainer_data:        
